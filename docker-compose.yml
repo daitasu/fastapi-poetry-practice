@@ -1,0 +1,13 @@
+﻿version: "3"
+services:
+  postgres:
+    image: postgres:13.6
+    container_name: "db"
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=devdb
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+    ports:
+      - 15432:5432

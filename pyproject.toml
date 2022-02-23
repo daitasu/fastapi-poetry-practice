@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "fastapi-starter"
+version = "0.1.0"
+description = ""
+authors = ["daitasu"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.74.0"
+uvicorn = "^0.17.5"
+flake8 = "^4.0.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = {version = "^22.1.0", allow-prereleases = true}
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

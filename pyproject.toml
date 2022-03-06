@@ -5,10 +5,11 @@ description = ""
 authors = ["daitasu"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python="3.10.2"
 fastapi = "^0.74.0"
 uvicorn = "^0.17.5"
-flake8 = "^4.0.1"
+SQLAlchemy = "^1.4.31"
+psycopg2 = "^2.9.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

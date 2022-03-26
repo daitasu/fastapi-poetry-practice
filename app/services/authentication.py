@@ -11,10 +11,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
 
 
-class AuthException(BaseException):
-    pass
-
-
 class AuthService:
     def verify_password(self, plain_password, hashed_password):
         return pwd_context.verify(plain_password, hashed_password)
@@ -59,3 +55,6 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return token_data.username
+
+
+auth_service = AuthService()

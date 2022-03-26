@@ -1,15 +1,12 @@
-from datetime import datetime, timedelta
-
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 
 # from sqlalchemy.orm import Session
-from jose import JWTError, jwt
 
-import app.models as models, app.schemas as schemas, app.crud as crud
+import app.models as models, app.schemas as schemas
 from app.database import SessionLocal, engine
-from app.core.config import SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from app import auth_service
+from app.services.authentication import oauth2_scheme
+from app.services import auth_service
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -22,8 +19,6 @@ fake_users_db = {
         "disabled": False,
     }
 }
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI()
 
@@ -52,37 +47,16 @@ def authenticate_user(fake_db, username: str, password: str):
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, str(SECRET_KEY), algorithm=JWT_ALGORITHM)
-    return encoded_jwt
-
-
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        # 受け取ったアクセストークンをdecodeする。payloadを分解して、usernameを取得
-        payload = jwt.decode(token, str(SECRET_KEY), algorithms=[JWT_ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        # tokenのschemaの一致を確認
-        token_data = schemas.TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
+    username = auth_service.get_current_username(token)
     # dbからuserを取得
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(fake_users_db, username=username)
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 
@@ -106,9 +80,8 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
             headers={"WWW-Authenticate": "Bearer"},
         )
     # 有効期限付きで、subにusernameを入れたアクセストークンを返す
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+    access_token = auth_service.create_access_token_for_user(
+        data={"sub": user.username}
     )
     return {"access_token": access_token, "token_type": "bearer"}
 

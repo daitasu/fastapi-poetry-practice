@@ -3,7 +3,7 @@
 ## Install pyenv
 - bash
   - git clone git://github.com/yyuu/pyenv.git ~/.pyenv
-  - bash_profileにPATHを追加
+  - write the pyenv path on `.bash_profile`
 
 ```.bash_profile
 + export PATH="$HOME/.pyenv/bin:$PATH"
@@ -24,15 +24,15 @@ $ pyenv global 3.x.x
 $ curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-- Add poetry PATH
+- Add poetry PATH on `.bash_profile`
 
-```.bash_profile
-export PATH="$HOME/.poetry/bin:$PATH"
+```
++ export PATH="$HOME/.poetry/bin:$PATH"
 ```
 
 - Change python path handled by poetry to pyenv
 
-```bash
+```
 $ poetry env use {pyenv path}
 ```
 

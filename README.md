@@ -45,5 +45,5 @@ git clone git@github.com:daitasu/fastapi-poetry-practice.git
 docker-compose up
 
 ## boot app on dev
-poetry run uvicorn main:app --reload
+poetry run uvicorn app.api.server:app --reload
 ```
